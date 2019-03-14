@@ -1,2 +1,2 @@
-# apollo-example
-apollo-example
+# apollo-server-client-example
+apollo-server-client-example
