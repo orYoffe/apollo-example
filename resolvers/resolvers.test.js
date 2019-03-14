@@ -5,21 +5,19 @@ const resolvers = require('./resolvers');
 const DB_PATH = path.join(__dirname, '../users.json');
 
 jest.mock('jsonfile', () => {
-  const data = {
-    users: [
-      {
-        id: '123',
-        name: 'Or',
-      },
-      {
-        id: '1234',
-        name: 'John',
-      },
-    ]
-  };
+  const users = [
+    {
+      id: '123',
+      name: 'Or',
+    },
+    {
+      id: '1234',
+      name: 'John',
+    },
+  ];
   return {
-    readFile: jest.fn(() => Promise.resolve(data)),
-    writeFile: jest.fn(() => Promise.resolve(data)),
+    readFile: jest.fn(() => Promise.resolve({ users: users.slice() })),
+    writeFile: jest.fn(() => Promise.resolve()),
   };
 });
 
@@ -84,6 +82,12 @@ describe('resolvers', () => {
 
   describe('Mutations resolvers', () => {
     describe('addUser resolver', () => {
+      it('should return undefined when called without a name', () => {
+        const result = resolvers.Mutation.addUser(null, {});
+
+        expect(result).toEqual(undefined);
+      });
+
       it('should call create a new user with the name it received', () => {
         const newUser = { name: 'Bob', id: `${Math.random()}` };
         const newUsersData = usersData.slice();
@@ -96,29 +100,9 @@ describe('resolvers', () => {
           expect(result).toEqual(newUser);
         });
       });
-
-      it('should return undefined when called without a name', () => {
-        const result = resolvers.Mutation.addUser(null, {});
-
-        expect(result).toEqual(undefined);
-      });
     });
 
     describe('updateUser resolver', () => {
-      it('should call create a new user with the name it received', () => {
-        const args = { id: '123', name: 'Bob' };
-        const newData = { users: usersData.slice() };
-        const user = newData.users.find(user => args.id === user.id)
-        user.name = args.name;
-
-        return resolvers.Mutation.updateUser(null, args)
-        .then((result) => {
-          expect(jsonfile.readFile.mock.calls).toEqual([[DB_PATH]]);
-          expect(jsonfile.writeFile.mock.calls).toEqual([[DB_PATH, newData]]);
-          expect(result).toEqual(user);
-        });
-      });
-
       it('should return undefined when called without a name', () => {
         const result = resolvers.Mutation.updateUser(null, { id: '123' });
 
@@ -129,6 +113,19 @@ describe('resolvers', () => {
         const result = resolvers.Mutation.updateUser(null, { name: 'Bob' });
 
         expect(result).toEqual(undefined);
+      });
+
+      it('should call create a new user with the name it received', () => {
+        const args = { id: '123', name: 'Bob' };
+        const user = usersData.find(user => args.id === user.id);
+        user.name = args.name;
+
+        return resolvers.Mutation.updateUser(null, args)
+        .then((result) => {
+          expect(jsonfile.readFile.mock.calls).toEqual([[DB_PATH]]);
+          expect(jsonfile.writeFile.mock.calls).toEqual([[DB_PATH, { users: usersData }]]);
+          expect(result).toEqual(user);
+        });
       });
     });
   });

@@ -44,12 +44,12 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.getUser('123');
+    // this.getUser('123');
 
     this.addUser('Rick');
     this.addUser('Jane');
 
-    this.updateUser('1234', 'Marry');
+    // this.updateUser('1234', 'Marry');
 
     this.getAllUsers();
   }
@@ -89,7 +89,7 @@ class App extends Component {
 
   render() {
     const { users, newUser, updatedUser, getUser } = this.state;
-
+console.log('---------users--------', users);
     return (
       <div className="App">
         <h1>getUsers:</h1>

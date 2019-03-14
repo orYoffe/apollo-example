@@ -25,9 +25,8 @@ const resolvers = {
       const newUser = { name: args.name, id: `${Math.random()}` };
       return jsonfile.readFile(DB_PATH)
       .then(data => {
-        const newData = { users: data.users.slice() };
-        newData.users.push(newUser);
-        return jsonfile.writeFile(DB_PATH, newData)
+        data.users.push(newUser);
+        return jsonfile.writeFile(DB_PATH, data)
         .then(() => newUser);
       });
     },
@@ -37,10 +36,9 @@ const resolvers = {
       }
       return jsonfile.readFile(DB_PATH)
       .then(data => {
-        const newData = { users: data.users.slice() };
-        const user = newData.users.find(user => args.id === user.id)
+        const user = data.users.find(user => args.id === user.id)
         user.name = args.name;
-        return jsonfile.writeFile(DB_PATH, newData)
+        return jsonfile.writeFile(DB_PATH, data)
         .then(() => user);
       });
     },
